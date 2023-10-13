@@ -205,12 +205,18 @@ export class AppComponent {
           query += 'host:*cvcn*';
           break;
       }
+      if (applicationsUsed.includes('Citizen Access') && !applicationsUsed.includes('Civic Platform')) {
+        query += ' AND service:aca';
+      }
+      if (applicationsUsed.includes('Civic Platform') && !applicationsUsed.includes('Citizen Access')){
+        query += ' AND -service:aca'
+      }
       query += ` OR (service:capi AND @Properties.log.EnvName:${this.environment.toUpperCase()} AND @Properties.log.Agency:${this.servProvCode.toUpperCase()}))`;
     } else {
       // Add environment-specific conditions
       switch (environment) {
         case 'PROD':
-          query += ' host:*mtprd*';
+          query += ' (host:*mtprd*';
           break;
         case 'TEST':
         case 'SUPP':
@@ -227,7 +233,22 @@ export class AppComponent {
           query += ' host:*cvcn*';
           break;
       }
+      if (applicationsUsed.includes('Citizen Access') && !applicationsUsed.includes('Civic Platform')) {
+        query += ' AND service:aca';
+      }
+      if (applicationsUsed.includes('Civic Platform') && !applicationsUsed.includes('Citizen Access')){
+        query += ' AND -service:aca'
+      }
+      query += ')';
+
+      if (applicationsUsed.includes('CAPI')  && !applicationsUsed.includes('Civic Platform') && !applicationsUsed.includes('Civic Platform')) {
+        query = `service:capi AND @Properties.log.EnvName:${this.environment.toUpperCase()} AND @Properties.log.Agency:${this.servProvCode.toUpperCase()}`;
+      }
     }
+
+    
+
+    
     // Construct the URL
     const baseURL = 'https://app.datadoghq.com/logs';
     const queryParams = new URLSearchParams({
