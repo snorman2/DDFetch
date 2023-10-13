@@ -50,6 +50,12 @@ export class AppComponent {
       alert('Please fill in the following fields: ' + missingFields.join(', '));
       return;
     }
+    const applicationsUsed = this.getCheckedApplications();
+
+    if (applicationsUsed.length === 0) {
+      alert('Please select at least one application.');
+      return;
+    }
 
     const [beginUnixTimestamp, endUnixTimestamp] = this.convertToUnixTimestamps(
       beginTimestampElement.value,
@@ -245,10 +251,6 @@ export class AppComponent {
         query = `service:capi AND @Properties.log.EnvName:${this.environment.toUpperCase()} AND @Properties.log.Agency:${this.servProvCode.toUpperCase()}`;
       }
     }
-
-    
-
-    
     // Construct the URL
     const baseURL = 'https://app.datadoghq.com/logs';
     const queryParams = new URLSearchParams({
