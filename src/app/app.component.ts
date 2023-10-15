@@ -39,7 +39,7 @@ export class AppComponent {
     const missingFields: string[] = [];
     if (servProvCodeElement.value.trim() === '')
       missingFields.push('ServProvCode');
-    if (environmentElement.value.trim() === '')
+    if (environmentElement.value.trim() === '' || environmentElement.value.trim() === "--SELECT--")
       missingFields.push('Environment');
     if (beginTimestampElement.value.trim() === '')
       missingFields.push('Begin Timestamp');
