@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
   servProvCode: string = '';
@@ -13,6 +14,7 @@ export class AppComponent {
   beginTimestamp: Number = 0;
   endTimestamp: Number = 0;
   applicationsUsed: string[] = [];
+  showSniffer: boolean = false;
 
   constructor(private dialog: MatDialog) {}
 
@@ -110,6 +112,7 @@ export class AppComponent {
       this.applicationsUsed
     );
     console.log(datadogURL); // Output the generated URL
+    
     this.openURLInNewTab(datadogURL);
 
   }
@@ -272,4 +275,5 @@ export class AppComponent {
   openURLInNewTab(fullURL: string) {
     window.open(fullURL, '_blank');
   }
+
 }

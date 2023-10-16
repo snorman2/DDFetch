@@ -1,0 +1,38 @@
+ /* Custom CSS for the container with border, shadow, rounded corners, transparent blue border, and spacing between rows */
+ .container-border {
+    border: 3px solid rgba(136, 37, 218, 0.5); /* 3px thick and transparent blue border */
+    padding: 20px;
+    box-shadow: 5px 5px 10px #888888; /* Shadow effect */
+    border-radius: 10px; /* Rounded corners */
+  }
+  .form-row {
+    margin-bottom: 20px; /* Add space between rows */
+  }
+
+  .title-row {
+    background-color: lavender;
+    border-radius: 10px; /* Rounded corners */
+  }
+
+  .custom-btn-primary {
+    background-color: rgba(136, 37, 218, 1); /* Background color */
+    border: none; /* Remove button border */
+    color: #fff; /* Text color */
+  }
+
+  .custom-btn-primary:hover {
+    background-color: rgba(
+      136,
+      37,
+      218,
+      1
+    ); /* Change the background color to lavender on hover */
+    color: #fff; /* Text color */
+  }
+  /* Style for logo */
+  .logo {
+    max-height: 80px;
+  }
+  .top-border-purple {
+border-top: 2px solid rgba(136, 37, 218, 0.5);
+}

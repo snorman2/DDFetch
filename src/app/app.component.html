@@ -1,122 +1,155 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <!-- Include Bootstrap CSS and JavaScript libraries -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <style>
-    /* Custom CSS for the container with border, shadow, rounded corners, transparent blue border, and spacing between rows */
-    .container-border {
-      border: 3px solid rgba(136, 37, 218, 0.5); /* 3px thick and transparent blue border */
-      padding: 20px;
-      box-shadow: 5px 5px 10px #888888; /* Shadow effect */
-      border-radius: 10px; /* Rounded corners */
-    }
-    .form-row {
-      margin-bottom: 20px; /* Add space between rows */
-    }
+  <head>
+    <!-- Include Bootstrap CSS and JavaScript libraries -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+     
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div
+        class="row justify-content-center align-items-center"
+        style="height: 100vh"
+      >
+        <div class="col-md-6 container-border">
+          <form>
+            <!-- Row 1 - Title and Logo -->
+            <div class="form-row title-row">
+              <div class="col-md-6">
+                <h1>DDFetch</h1>
+              </div>
+              <div class="ml-auto">
+                <img
+                  src="assets/logo.jpeg"
+                  alt="Logo"
+                  style="max-height: 80px"
+                />
+              </div>
+            </div>
 
-    .title-row {
-      background-color: lavender;
-      border-radius: 10px; /* Rounded corners */
-    }
+            <!-- Row 2 - ServProvCode and Environment -->
+            <div class="form-row">
+              <!-- ServProvCode Textbox -->
+              <div class="col-md-6 mb-3">
+                <label for="inputServProvCode">ServProvCode</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="inputServProvCode"
+                  required
+                />
+              </div>
 
-    .custom-btn-primary {
-      background-color:  rgba(136, 37, 218, 1); /* Background color */
-      border: none; /* Remove button border */
-      color: #fff; /* Text color */
-    }
+              <!-- Environment Dropdownlist -->
+              <div class="col-md-6 mb-3">
+                <label for="inputEnvironment">Environment</label>
+                <select class="form-control" id="inputEnvironment" required>
+                  <option value="--SELECT--">--SELECT--</option>
+                  <option value="PROD">PROD</option>
+                  <option value="SUPP">SUPP</option>
+                  <option value="TEST">TEST</option>
+                  <option value="STG">STG</option>
+                  <option value="NONPROD1">NONPROD1</option>
+                  <option value="NONPROD2">NONPROD2</option>
+                  <option value="NONPROD3">NONPROD3</option>
+                  <option value="NONPROD4">NONPROD4</option>
+                  <option value="CVCN">CVCN</option>
+                </select>
+              </div>
+            </div>
 
-    .custom-btn-primary:hover {
-  background-color: rgba(136, 37, 218, 1); /* Change the background color to lavender on hover */
-  color: #fff; /* Text color */
-}
-    /* Style for logo */
-    .logo {
-      max-height: 80px;
-    }
-  </style>
-</head>
-<body>
+            <!-- Row 3 - Timestamps -->
+            <div class="form-row">
+              <!-- Begin Timestamp Date and Time Selector -->
+              <div class="col-md-6 mb-3">
+                <label for="inputBeginTimestamp">Begin Timestamp</label>
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  id="inputBeginTimestamp"
+                  name="beginTimestamp"
+                />
+              </div>
 
-<div class="container">
-  <div class="row justify-content-center align-items-center" style="height: 100vh;">
-    <div class="col-md-6 container-border">
-      <form>
-        <!-- Row 1 - Title and Logo -->
-        <div class="form-row title-row">
-          <div class="col-md-6">
-            <h1>DDFetch</h1>
-          </div>
-          <div class="ml-auto">
-            <img src="assets/logo.jpeg" alt="Logo" style="max-height: 80px;">
-          </div>
+              <!-- End Timestamp Date and Time Selector -->
+              <div class="col-md-6 mb-3">
+                <label for="inputEndTimestamp">End Timestamp</label>
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  id="inputEndTimestamp"
+                  name="endTimestamp"
+                />
+              </div>
+            </div>
+            
+            <!-- Add more rows here -->
+            <div class="form-row">
+              <div class="col-md-4">
+                <label for="civicPlatformCheckbox" style="padding-right: 2px"
+                  >Civic Platform</label
+                >
+                <input
+                  type="checkbox"
+                  id="civicPlatformCheckbox"
+                  name="applicationsUsed[]"
+                  value="Civic Platform"
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="citizenAccessCheckbox" style="padding-right: 2px"
+                  >Citizen Access</label
+                >
+                <input
+                  type="checkbox"
+                  id="citizenAccessCheckbox"
+                  name="applicationsUsed[]"
+                  value="Citizen Access"
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="constructAPICheckbox" style="padding-right: 2px"
+                  >Construct API</label
+                >
+                <input
+                  type="checkbox"
+                  id="constructAPICheckbox"
+                  name="applicationsUsed[]"
+                  value="CAPI"
+                />
+              </div>
+            </div>
+            <div class="form-row top-border-purple">
+              <div class="col-md-6 mb-3">
+                <label for="snifferCheckbox" style="padding-right: 2px">Sniff</label>
+                <input
+                  type="checkbox"
+                  id="snifferCheckbox"
+                  name="snifferCheckbox"
+                  [(ngModel)]="showSniffer" 
+                />
+              </div>
+              <app-sniffer *ngIf="showSniffer"></app-sniffer>
+            </div>
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="btn btn-primary custom-btn-primary"
+              (click)="onSubmit($event)"
+            >
+              Fetch
+            </button>
+          </form>
         </div>
-
-        <!-- Row 2 - ServProvCode and Environment -->
-        <div class="form-row">
-          <!-- ServProvCode Textbox -->
-          <div class="col-md-6 mb-3">
-            <label for="inputServProvCode">ServProvCode</label>
-            <input type="text" class="form-control" id="inputServProvCode" required>
-          </div>
-
-          <!-- Environment Dropdownlist -->
-          <div class="col-md-6 mb-3">
-            <label for="inputEnvironment">Environment</label>
-            <select class="form-control" id="inputEnvironment" required>
-              <option value="--SELECT--">--SELECT--</option>
-              <option value="PROD">PROD</option>
-              <option value="SUPP">SUPP</option>
-              <option value="TEST">TEST</option>
-              <option value="STG">STG</option>
-              <option value="NONPROD1">NONPROD1</option>
-              <option value="NONPROD2">NONPROD2</option>
-              <option value="NONPROD3">NONPROD3</option>
-              <option value="NONPROD4">NONPROD4</option>
-              <option value="CVCN">CVCN</option>
-            </select>
-          </div>
-        </div>
-        
-        <!-- Row 3 - Timestamps -->
-        <div class="form-row">
-          <!-- Begin Timestamp Date and Time Selector -->
-<div class="col-md-6 mb-3">
-  <label for="inputBeginTimestamp">Begin Timestamp</label>
-  <input type="datetime-local" class="form-control" id="inputBeginTimestamp" name="beginTimestamp" >
-</div>
-
-<!-- End Timestamp Date and Time Selector -->
-<div class="col-md-6 mb-3">
-  <label for="inputEndTimestamp">End Timestamp</label>
-  <input type="datetime-local" class="form-control" id="inputEndTimestamp" name="endTimestamp">
-</div>
-        </div>
-
-        <!-- Add more rows here -->
-        <div class="form-row">
-          <div class="col-md-4">
-            <label for="civicPlatformCheckbox" style="padding-right: 2px;">Civic Platform</label>
-            <input type="checkbox" id="civicPlatformCheckbox" name="applicationsUsed[]" value="Civic Platform">
-          </div>
-          <div class="col-md-4">
-            <label for="citizenAccessCheckbox" style="padding-right: 2px;">Citizen Access</label>
-            <input type="checkbox" id="citizenAccessCheckbox" name="applicationsUsed[]" value="Citizen Access">
-          </div>
-          <div class="col-md-4">
-            <label for="constructAPICheckbox" style="padding-right: 2px;">Construct API</label>
-            <input type="checkbox" id="constructAPICheckbox" name="applicationsUsed[]" value="CAPI">
-          </div>
-        </div>
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary custom-btn-primary" (click)="onSubmit($event)">Fetch</button>
-      </form>
+      </div>
     </div>
-  </div>
-</div>
-
-</body>
+  </body>
 </html>
