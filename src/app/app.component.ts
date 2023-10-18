@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -15,6 +16,18 @@ export class AppComponent {
   applicationsUsed: string[] = [];
 
   constructor(private dialog: MatDialog) {}
+
+  ngOnInit() {
+    // This code will run when the component is initialized.
+    const beginTimestampElement = this.getInputElement('inputBeginTimestamp') as HTMLInputElement;
+    const endTimestampElement = this.getInputElement('inputEndTimestamp') as HTMLInputElement;
+
+    const { beginTimestamp, endTimestamp } = this.generateTimestamps();
+
+    // Prepopulate the form elements with the generated timestamps
+    beginTimestampElement.value = beginTimestamp.toISOString().slice(0, 16);
+    endTimestampElement.value = endTimestamp.toISOString().slice(0, 16);
+  }
 
   onSubmit(event: Event) {
     event.preventDefault();
@@ -180,17 +193,17 @@ export class AppComponent {
     let query = `(${servProvCode.toUpperCase()}`;
 
     if (applicationsUsed.includes('Civic Platform')) {
-      query += ` OR @SERV_PROV_CODE:${servProvCode.toUpperCase()} OR @JNDI:*${servProvCode.toLowerCase()}-${environment.toLowerCase()}*`;
+      query += ` OR @SERV_PROV_CODE:${servProvCode.toUpperCase()} OR @JNDI:*${servProvCode.toLowerCase()}-${environment.toLowerCase()}* OR @JNDI:*${servProvCode.toUpperCase()}-${environment.toUpperCase()}*`;
     }
 
     if (applicationsUsed.includes('Citizen Access')) {
       query += ` OR @filename:*${servProvCode.toLowerCase()}-${environment.toLowerCase()}*`;
     }
 
-    query += ') AND';
+    query += ') AND (';
 
     if (applicationsUsed.includes('CAPI')) {
-      query += ' (';
+      
       // Add environment-specific conditions
       switch (environment) {
         case 'PROD':
@@ -271,5 +284,21 @@ export class AppComponent {
   
   openURLInNewTab(fullURL: string) {
     window.open(fullURL, '_blank');
+  }
+
+  generateTimestamps() {
+    const today = new Date();
+    
+    // Set the time zone to UTC for the beginTimestamp
+    const beginTimestamp = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0, 0));
+    
+    // The default "endTimestamp" is the current local time
+    const endTimestamp = new Date();
+
+    // Adjust the endTimestamp to the correct local time zone
+    const localEndTimestamp = new Date(endTimestamp);
+    localEndTimestamp.setMinutes(endTimestamp.getMinutes() - endTimestamp.getTimezoneOffset());
+
+    return { beginTimestamp, endTimestamp: localEndTimestamp };
   }
 }
