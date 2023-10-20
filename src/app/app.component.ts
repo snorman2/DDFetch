@@ -190,10 +190,10 @@ export class AppComponent {
     applicationsUsed: string[]
   ) {
     // Format the Datadog query
-    let query = `(${servProvCode.toUpperCase()}`;
+    let query = `(*${servProvCode.toUpperCase()}*`;
 
     if (applicationsUsed.includes('Civic Platform')) {
-      query += ` OR @SERV_PROV_CODE:${servProvCode.toUpperCase()} OR @JNDI:*${servProvCode.toLowerCase()}-${environment.toLowerCase()}* OR @JNDI:*${servProvCode.toUpperCase()}-${environment.toUpperCase()}*`;
+      query += ` OR @SERV_PROV_CODE:*${servProvCode.toUpperCase()}* OR @JNDI:*${servProvCode.toLowerCase()}-${environment.toLowerCase()}* OR @JNDI:*${servProvCode.toUpperCase()}-${environment.toUpperCase()}*`;
     }
 
     if (applicationsUsed.includes('Citizen Access')) {
@@ -235,7 +235,7 @@ export class AppComponent {
       // Add environment-specific conditions
       switch (environment) {
         case 'PROD':
-          query += ' (host:*mtprd*';
+          query += ' host:*mtprd*';
           break;
         case 'TEST':
         case 'SUPP':
