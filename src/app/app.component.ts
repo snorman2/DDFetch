@@ -235,7 +235,7 @@ export class AppComponent {
       // Add environment-specific conditions
       switch (environment) {
         case 'PROD':
-          query += ' host:*mtprd*';
+          query += 'host:*mtprd*';
           break;
         case 'TEST':
         case 'SUPP':
@@ -243,13 +243,13 @@ export class AppComponent {
         case 'NONPROD2':
         case 'NONPROD3':
         case 'NONPROD4':
-          query += ' host:*mtsup*';
+          query += 'host:*mtsup*';
           break;
         case 'STG':
-          query += ' host:*stg*';
+          query += 'host:*stg*';
           break;
         case 'CVCN':
-          query += ' host:*cvcn*';
+          query += 'host:*cvcn*';
           break;
       }
       if (applicationsUsed.includes('Citizen Access') && !applicationsUsed.includes('Civic Platform')) {
