@@ -9,27 +9,22 @@ import { MatDialog } from '@angular/material/dialog';
 export class AppComponent {
   servProvCode: string = '';
   environment: string = '';
+  selectedTimeframe: string = 'TODAY';
   beginTimestamp: Number = 0;
   endTimestamp: Number = 0;
+  activeBeginCalendarValue: string = '';
+  activeEndCalendarValue: string = '';
   applicationsUsed: string[] = [];
   traceId: string = '';
   additionalParams: string = '';
-  constructor(private dialog: MatDialog) {}
 
   ngOnInit() {
-    // This code will run when the component is initialized.
-    const beginTimestampElement = this.getInputElement(
-      'inputBeginTimestamp'
-    ) as HTMLInputElement;
-    const endTimestampElement = this.getInputElement(
-      'inputEndTimestamp'
-    ) as HTMLInputElement;
 
     const { beginTimestamp, endTimestamp } = this.generateTimestamps();
 
     // Prepopulate the form elements with the generated timestamps
-    beginTimestampElement.value = beginTimestamp.toISOString().slice(0, 16);
-    endTimestampElement.value = endTimestamp.toISOString().slice(0, 16);
+    this.activeBeginCalendarValue = beginTimestamp.toISOString().slice(0, 16);
+    this.activeEndCalendarValue = endTimestamp.toISOString().slice(0, 16);
   }
 
   onSubmit(event: Event) {
@@ -127,6 +122,44 @@ export class AppComponent {
       this.openURLInNewTab(redirectURL);
     }
   }
+
+  onTimeframeChange() {
+  const currentDate = new Date();
+
+  
+    let beginTimestampDate = new Date();
+    if (this.selectedTimeframe === 'TODAY') {
+      beginTimestampDate = new Date(currentDate);
+      beginTimestampDate.setHours(0, 0, 0, 0); // Set
+    }
+    if (this.selectedTimeframe === 'Past 15 Minutes') {
+      beginTimestampDate.setMinutes(currentDate.getMinutes() - 15);
+    } else if (this.selectedTimeframe === 'Past 1 Hour') {
+      beginTimestampDate.setHours(currentDate.getHours() - 1);
+    } else if (this.selectedTimeframe === 'Past 4 Hours') {
+      beginTimestampDate.setHours(currentDate.getHours() - 4);
+    } else if (this.selectedTimeframe === 'Past 1 Day') {
+      beginTimestampDate.setDate(currentDate.getDate() - 1);
+    } else if (this.selectedTimeframe === 'Past 2 Days') {
+      beginTimestampDate.setDate(currentDate.getDate() - 2);
+    } else if (this.selectedTimeframe === 'Past 3 Days') {
+      beginTimestampDate.setDate(currentDate.getDate() - 3);
+    } else if (this.selectedTimeframe === 'Past 7 Days') {
+      beginTimestampDate.setDate(currentDate.getDate() - 7);
+    } else if (this.selectedTimeframe === 'Past 15 Days') {
+      beginTimestampDate.setDate(currentDate.getDate() - 15);
+    }
+
+    this.activeBeginCalendarValue = this.convertUTCtoLocal(beginTimestampDate).toISOString().slice(0, 16);
+    this.activeEndCalendarValue = this.convertUTCtoLocal(currentDate).toISOString().slice(0, 16);
+}
+
+private convertUTCtoLocal(utcDate: Date): Date {
+  const localTimezoneOffset = utcDate.getTimezoneOffset();
+  const localDate = new Date(utcDate.getTime() - localTimezoneOffset * 60000);
+  return localDate;
+}
+
   
   private validateForm(): boolean {
     const servProvCodeElement = this.getInputElement(

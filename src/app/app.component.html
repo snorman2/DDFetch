@@ -11,40 +11,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style>
       /* Custom CSS for the container with border, shadow, rounded corners, transparent blue border, and spacing between rows */
-      .container-border {
-        border: 3px solid rgba(136, 37, 218, 0.5); /* 3px thick and transparent blue border */
-        padding: 20px;
-        box-shadow: 5px 5px 10px #888888; /* Shadow effect */
-        border-radius: 10px; /* Rounded corners */
-      }
-      .form-row {
-        margin-bottom: 20px; /* Add space between rows */
-      }
-
-      .title-row {
-        background-color: lavender;
-        border-radius: 10px; /* Rounded corners */
-      }
-
-      .custom-btn-primary {
-        background-color: rgba(136, 37, 218, 1); /* Background color */
-        border: none; /* Remove button border */
-        color: #fff; /* Text color */
-      }
-
-      .custom-btn-primary:hover {
-        background-color: rgba(
-          136,
-          37,
-          218,
-          1
-        ); /* Change the background color to lavender on hover */
-        color: #fff; /* Text color */
-      }
-      /* Style for logo */
-      .logo {
-        max-height: 80px;
-      }
+      
     </style>
   </head>
   <body>
@@ -100,31 +67,55 @@
               </div>
             </div>
 
-            <!-- Row 3 - Timestamps -->
+            
+            
             <div class="form-row">
-              <!-- Begin Timestamp Date and Time Selector -->
-              <div class="col-md-6 mb-3">
-                <label for="inputBeginTimestamp">Begin Timestamp</label>
-                <input
-                  type="datetime-local"
-                  class="form-control"
-                  id="inputBeginTimestamp"
-                  name="beginTimestamp"
-                />
-              </div>
-
-              <!-- End Timestamp Date and Time Selector -->
-              <div class="col-md-6 mb-3">
-                <label for="inputEndTimestamp">End Timestamp</label>
-                <input
-                  type="datetime-local"
-                  class="form-control"
-                  id="inputEndTimestamp"
-                  name="endTimestamp"
-                />
-              </div>
+              <div class="col-md-0.5"></div>
+               <!-- Add a "Timeframe" dropdown with ngModel -->
+            <div class="col-md-3 mb-3">
+              <label for="selectedTimeframe">Timeframe</label>
+               <select 
+            class="form-control"
+            [(ngModel)]="selectedTimeframe"
+            (change)="onTimeframeChange()"
+            name="selectedTimeframe"
+          >
+            <option value="TODAY">TODAY</option>
+            <option value="Past 15 Minutes">Past 15 Mins</option>
+            <option value="Past 1 Hour">Past 1 Hour</option>
+            <option value="Past 4 Hours">Past 4 Hours</option>
+            <option value="Past 1 Day">Past 1 Day</option>
+            <option value="Past 2 Days">Past 2 Days</option>
+            <option value="Past 3 Days">Past 3 Days</option>
+            <option value="Past 7 Days">Past 7 Days</option>
+            <option value="Past 15 Days">Past 15 Days</option>
+          </select>
+        </div>
+            <!-- Begin Timestamp Date and Time Selector -->
+            <div class="col-md-4 mb-3">
+              <label for="inputBeginTimestamp">Begin Timestamp</label>
+              <input
+                type="datetime-local"
+                class="form-control"
+                id="inputBeginTimestamp"
+                [(ngModel)]="activeBeginCalendarValue"
+                name="activeBeginCalendarValue"
+              />
             </div>
 
+            <!-- End Timestamp Date and Time Selector -->
+            <div class="col-md-4 mb-3">
+              <label for="inputEndTimestamp">End Timestamp</label>
+              <input
+                type="datetime-local"
+                class="form-control"
+                id="inputEndTimestamp"
+                [(ngModel)]="activeEndCalendarValue"
+                name="activeEndCalendarValue"
+              />
+            </div>
+            
+          </div>
             <!-- Add more rows here -->
             <div class="form-row">
               <div class="col-md-4">
@@ -196,4 +187,3 @@
     </div>
   </body>
 </html>
-
