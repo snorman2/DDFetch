@@ -147,7 +147,8 @@ export class AppComponent {
     } else if (this.selectedTimeframe === 'Past 7 Days') {
       beginTimestampDate.setDate(currentDate.getDate() - 7);
     } else if (this.selectedTimeframe === 'Past 15 Days') {
-      beginTimestampDate.setDate(currentDate.getDate() - 15);
+      beginTimestampDate.setHours(currentDate.getHours() - 360); // 360 hours ago
+      beginTimestampDate.setMinutes(currentDate.getMinutes() + 1); // Subtract 1 minute
     }
 
     this.activeBeginCalendarValue = this.convertUTCtoLocal(beginTimestampDate).toISOString().slice(0, 16);
