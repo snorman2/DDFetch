@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +18,6 @@ export class AppComponent {
   additionalParams: string = '';
 
   ngOnInit() {
-
     const { beginTimestamp, endTimestamp } = this.generateTimestamps();
 
     // Prepopulate the form elements with the generated timestamps
@@ -29,51 +27,56 @@ export class AppComponent {
 
   onSubmit(event: Event) {
     event.preventDefault();
-  
-    const traceIdElement = this.getInputElement('inputTraceID') as HTMLInputElement;
+
+    const traceIdElement = this.getInputElement(
+      'inputTraceID'
+    ) as HTMLInputElement;
     this.traceId = traceIdElement.value;
-    const additionaParamsElement = this.getInputElement('inputAdditionalParams') as HTMLInputElement;
+    const additionaParamsElement = this.getInputElement(
+      'inputAdditionalParams'
+    ) as HTMLInputElement;
     this.additionalParams = additionaParamsElement.value;
-  
+
     console.log('Trace ID:', this.traceId);
     console.log('Additional Parameters:', this.additionalParams);
-  
+
     // If looking for just a trace_id, don't bother considering other values or validating form
     if (this.traceId.trim() !== '') {
       const timestamps = this.setTimestampsFromTraceId(this.traceId);
       let redirectURL = '';
-  
+
       if (timestamps) {
-          const { beginTimestamp, endTimestamp } = timestamps;
-          this.beginTimestamp = beginTimestamp;
-          this.endTimestamp = endTimestamp;
-          
-          if (this.isTimestampInFuture(beginTimestamp, endTimestamp)){
-            
-            return;
-          }
-  
-          console.log('Begin Timestamp:', this.beginTimestamp);
-          console.log('End Timestamp:', this.endTimestamp);
-  
-          const datadogQuery = `*${this.traceId}* OR @TRACE_ID:${this.traceId}`;
-  
-          if (this.isTimestampMoreThanFifteenDaysAgo(beginTimestamp)) {
-              console.log('Timestamp is more than fifteen days ago. Rehydrate is required');
-              redirectURL = this.generateRehydrateURL(datadogQuery);
-          } else {
-              redirectURL = this.generateRedirectURL(datadogQuery);
-          }
-  
-          console.log('Redirect URL:', redirectURL);
-  
-          this.openURLInNewTab(redirectURL);
-      } else {
-          // Handle the case when the traceID is invalid or for a future date
-          alert('Invalid traceID.');
+        const { beginTimestamp, endTimestamp } = timestamps;
+        this.beginTimestamp = beginTimestamp;
+        this.endTimestamp = endTimestamp;
+
+        if (this.isTimestampInFuture(beginTimestamp, endTimestamp)) {
           return;
+        }
+
+        console.log('Begin Timestamp:', this.beginTimestamp);
+        console.log('End Timestamp:', this.endTimestamp);
+
+        const datadogQuery = `*${this.traceId}* OR @TRACE_ID:${this.traceId}`;
+
+        if (this.isTimestampMoreThanFifteenDaysAgo(beginTimestamp)) {
+          console.log(
+            'Timestamp is more than fifteen days ago. Rehydrate is required'
+          );
+          redirectURL = this.generateRehydrateURL(datadogQuery);
+        } else {
+          redirectURL = this.generateRedirectURL(datadogQuery);
+        }
+
+        console.log('Redirect URL:', redirectURL);
+
+        this.openURLInNewTab(redirectURL);
+      } else {
+        // Handle the case when the traceID is invalid or for a future date
+        alert('Invalid traceID.');
+        return;
       }
-  }
+    }
     // If not looking for trace_id, validate form values, generate a query, and redirect
     else {
       const formIsValid = this.validateForm(); // Validate form fields
@@ -92,7 +95,7 @@ export class AppComponent {
       if (!this.validateTimestamps(beginUnixTimestamp, endUnixTimestamp)) {
         return;
       } else {
-         //if valid timestamps, set timestamps
+        //if valid timestamps, set timestamps
         this.setValues(beginUnixTimestamp, endUnixTimestamp);
       }
 
@@ -110,12 +113,13 @@ export class AppComponent {
       console.log('Datadog Query:', datadogQuery);
       let redirectURL = '';
       if (this.isTimestampMoreThanFifteenDaysAgo(beginUnixTimestamp)) {
-        console.log('Timestamp is more than fifteen days ago. Rehydrate is required');
+        console.log(
+          'Timestamp is more than fifteen days ago. Rehydrate is required'
+        );
         redirectURL = this.generateRehydrateURL(datadogQuery);
       } else {
         redirectURL = this.generateRedirectURL(datadogQuery);
       }
-      
 
       console.log('Redirect URL:', redirectURL);
 
@@ -124,9 +128,8 @@ export class AppComponent {
   }
 
   onTimeframeChange() {
-  const currentDate = new Date();
+    const currentDate = new Date();
 
-  
     let beginTimestampDate = new Date();
     if (this.selectedTimeframe === 'TODAY') {
       beginTimestampDate = new Date(currentDate);
@@ -151,17 +154,20 @@ export class AppComponent {
       beginTimestampDate.setMinutes(currentDate.getMinutes() + 1); // Subtract 1 minute
     }
 
-    this.activeBeginCalendarValue = this.convertUTCtoLocal(beginTimestampDate).toISOString().slice(0, 16);
-    this.activeEndCalendarValue = this.convertUTCtoLocal(currentDate).toISOString().slice(0, 16);
-}
+    this.activeBeginCalendarValue = this.convertUTCtoLocal(beginTimestampDate)
+      .toISOString()
+      .slice(0, 16);
+    this.activeEndCalendarValue = this.convertUTCtoLocal(currentDate)
+      .toISOString()
+      .slice(0, 16);
+  }
 
-private convertUTCtoLocal(utcDate: Date): Date {
-  const localTimezoneOffset = utcDate.getTimezoneOffset();
-  const localDate = new Date(utcDate.getTime() - localTimezoneOffset * 60000);
-  return localDate;
-}
+  private convertUTCtoLocal(utcDate: Date): Date {
+    const localTimezoneOffset = utcDate.getTimezoneOffset();
+    const localDate = new Date(utcDate.getTime() - localTimezoneOffset * 60000);
+    return localDate;
+  }
 
-  
   private validateForm(): boolean {
     const servProvCodeElement = this.getInputElement(
       'inputServProvCode'
@@ -220,12 +226,15 @@ private convertUTCtoLocal(utcDate: Date): Date {
     endTimestamp: number
   ): boolean {
     const currentUnixTimestamp = new Date().getTime();
-  
-    if (beginTimestamp > currentUnixTimestamp || endTimestamp > currentUnixTimestamp) {
+
+    if (
+      beginTimestamp > currentUnixTimestamp ||
+      endTimestamp > currentUnixTimestamp
+    ) {
       alert('Timestamps cannot be in the future.');
       return true;
     }
-  
+
     return false;
   }
 
@@ -235,7 +244,6 @@ private convertUTCtoLocal(utcDate: Date): Date {
 
     return new Date(beginTimestamp) < fifteenDaysAgo;
   }
-
 
   private setValues(beginTimestamp: number, endTimestamp: number) {
     this.servProvCode = (
@@ -302,119 +310,113 @@ private convertUTCtoLocal(utcDate: Date): Date {
     environment: string,
     applicationsUsed: string[]
   ) {
-    if (this.traceId.trim() !== '') {
-      // Do something when TRACE_ID is not empty (e.g., return a default query)
-      return 'Default Query for Empty TRACE_ID';
-    } else {
-      // Format the Datadog query
-      let query = `(*${servProvCode.toUpperCase()}*`;
+    // Format the Datadog query
+    let query = `(*${servProvCode.toUpperCase()}*`;
 
-      if (applicationsUsed.includes('Civic Platform')) {
-        query += ` OR @SERV_PROV_CODE:*${servProvCode.toUpperCase()}* OR @JNDI:*${servProvCode.toLowerCase()}-${environment.toLowerCase()}* OR @JNDI:*${servProvCode.toUpperCase()}-${environment.toUpperCase()}*`;
-      }
-
-      if (applicationsUsed.includes('Citizen Access')) {
-        query += ` OR @filename:*${servProvCode.toLowerCase()}-${environment.toLowerCase()}*`;
-      }
-
-      query += ') AND (';
-
-      if (applicationsUsed.includes('CAPI')) {
-        // Add environment-specific conditions
-        switch (environment) {
-          case 'PROD':
-            query += 'host:*mtprd*';
-            break;
-          case 'TEST':
-          case 'SUPP':
-          case 'NONPROD1':
-          case 'NONPROD2':
-          case 'NONPROD3':
-          case 'NONPROD4':
-            query += 'host:*mtsup*';
-            break;
-          case 'STG':
-            query += 'host:*stg*';
-            break;
-          case 'CVCN':
-            query += 'host:*cvcn*';
-            break;
-        }
-        if (
-          applicationsUsed.includes('Citizen Access') &&
-          !applicationsUsed.includes('Civic Platform')
-        ) {
-          query += ' AND service:aca';
-        }
-        if (
-          applicationsUsed.includes('Civic Platform') &&
-          !applicationsUsed.includes('Citizen Access')
-        ) {
-          query += ' AND -service:aca';
-        }
-        query += ` OR (service:capi AND @Properties.log.EnvName:${this.environment.toUpperCase()} AND @Properties.log.Agency:${this.servProvCode.toUpperCase()}))`;
-
-      } else {
-        // Add environment-specific conditions
-        switch (environment) {
-          case 'PROD':
-            query += 'host:*mtprd*';
-            break;
-          case 'TEST':
-          case 'SUPP':
-          case 'NONPROD1':
-          case 'NONPROD2':
-          case 'NONPROD3':
-          case 'NONPROD4':
-            query += 'host:*mtsup*';
-            break;
-          case 'STG':
-            query += 'host:*stg*';
-            break;
-          case 'CVCN':
-            query += 'host:*cvcn*';
-            break;
-        }
-        if (
-          applicationsUsed.includes('Citizen Access') &&
-          !applicationsUsed.includes('Civic Platform')
-        ) {
-          query += ' AND service:aca';
-        }
-        if (
-          applicationsUsed.includes('Civic Platform') &&
-          !applicationsUsed.includes('Citizen Access')
-        ) {
-          query += ' AND -service:aca';
-        }
-        query += ')';
-
-        if (
-          applicationsUsed.includes('CAPI') &&
-          !applicationsUsed.includes('Civic Platform') &&
-          !applicationsUsed.includes('Civic Platform')
-        ) {
-          query = `service:capi AND @Properties.log.EnvName:${this.environment.toUpperCase()} AND @Properties.log.Agency:${this.servProvCode.toUpperCase()}`;
-        }
-      }
-      if (this.additionalParams.trim() !== ''){
-        query += ` (${this.additionalParams})`
-      }
-      return query;
+    if (applicationsUsed.includes('Civic Platform')) {
+      query += ` OR @SERV_PROV_CODE:*${servProvCode.toUpperCase()}* OR @JNDI:*${servProvCode.toLowerCase()}-${environment.toLowerCase()}* OR @JNDI:*${servProvCode.toUpperCase()}-${environment.toUpperCase()}*`;
     }
+
+    if (applicationsUsed.includes('Citizen Access')) {
+      query += ` OR filename:*${servProvCode.toLowerCase()}-${environment.toLowerCase()}*`;
+    }
+
+    query += ') AND (';
+
+    if (applicationsUsed.includes('CAPI')) {
+      // Add environment-specific conditions
+      switch (environment) {
+        case 'PROD':
+          query += 'host:*mtprd*';
+          break;
+        case 'TEST':
+        case 'SUPP':
+        case 'NONPROD1':
+        case 'NONPROD2':
+        case 'NONPROD3':
+        case 'NONPROD4':
+          query += 'host:*mtsup*';
+          break;
+        case 'STG':
+          query += 'host:*stg*';
+          break;
+        case 'CVCN':
+          query += 'host:*cvcn*';
+          break;
+      }
+      if (
+        applicationsUsed.includes('Citizen Access') &&
+        !applicationsUsed.includes('Civic Platform')
+      ) {
+        query += ' AND service:aca';
+      }
+      if (
+        applicationsUsed.includes('Civic Platform') &&
+        !applicationsUsed.includes('Citizen Access')
+      ) {
+        query += ' AND -service:aca';
+      }
+      query += ` OR (service:capi AND @Properties.log.EnvName:${this.environment.toUpperCase()} AND @Properties.log.Agency:${this.servProvCode.toUpperCase()}))`;
+    } else {
+      // Add environment-specific conditions
+      switch (environment) {
+        case 'PROD':
+          query += 'host:*mtprd*';
+          break;
+        case 'TEST':
+        case 'SUPP':
+        case 'NONPROD1':
+        case 'NONPROD2':
+        case 'NONPROD3':
+        case 'NONPROD4':
+          query += 'host:*mtsup*';
+          break;
+        case 'STG':
+          query += 'host:*stg*';
+          break;
+        case 'CVCN':
+          query += 'host:*cvcn*';
+          break;
+      }
+      if (
+        applicationsUsed.includes('Citizen Access') &&
+        !applicationsUsed.includes('Civic Platform')
+      ) {
+        query += ' AND service:aca';
+      }
+      if (
+        applicationsUsed.includes('Civic Platform') &&
+        !applicationsUsed.includes('Citizen Access')
+      ) {
+        query += ' AND -service:aca';
+      }
+      query += ')';
+
+      if (
+        applicationsUsed.includes('CAPI') &&
+        !applicationsUsed.includes('Civic Platform') &&
+        !applicationsUsed.includes('Civic Platform')
+      ) {
+        query = `service:capi AND @Properties.log.EnvName:${this.environment.toUpperCase()} AND @Properties.log.Agency:${this.servProvCode.toUpperCase()}`;
+      }
+    }
+    if (this.additionalParams.trim() !== '') {
+      query += ` (${this.additionalParams})`;
+    }
+    return query;
   }
 
-  private generateRehydrateURL(query: string){
-    const baseURL = 'https://app.datadoghq.com/logs/pipelines/historical-views/add'
+  private generateRehydrateURL(query: string) {
+    const baseURL =
+      'https://app.datadoghq.com/logs/pipelines/historical-views/add';
     const queryParams = new URLSearchParams({
       query,
       from_ts: this.beginTimestamp.toString(),
-      to_ts: this.endTimestamp.toString()
+      to_ts: this.endTimestamp.toString(),
     });
 
     const fullURL = `${baseURL}?${queryParams.toString()}`;
     return fullURL;
-
   }
   private generateRedirectURL(query: string) {
     const baseURL = 'https://app.datadoghq.com/logs';
@@ -471,75 +473,80 @@ private convertUTCtoLocal(utcDate: Date): Date {
     const dateMatch = traceId.match(/(\d{2})(\d{2})(\d{2})/);
 
     if (dateMatch) {
-        const year = parseInt(dateMatch[1], 10) + 2000;
-        const month = parseInt(dateMatch[2], 10);
-        const day = parseInt(dateMatch[3], 10);
+      const year = parseInt(dateMatch[1], 10) + 2000;
+      const month = parseInt(dateMatch[2], 10);
+      const day = parseInt(dateMatch[3], 10);
 
-        // Create beginTimestamp for 12:00 AM on the specified date (local time zone)
-        const beginTimestamp = new Date(year, month - 1, day, 0, 0, 0, 0);
-      
-        // Get the current date in local time zone
-        const currentDate = new Date();
+      // Create beginTimestamp for 12:00 AM on the specified date (local time zone)
+      const beginTimestamp = new Date(year, month - 1, day, 0, 0, 0, 0);
 
-        // Create endTimestamp
-        let endTimestamp: Date;
+      // Get the current date in local time zone
+      const currentDate = new Date();
 
-        if (
-            currentDate.getFullYear() === year &&
-            currentDate.getMonth() === month - 1 &&
-            currentDate.getDate() === day
-        ) {
-            // The date in traceId is today, set endTimestamp to the current time
-            endTimestamp = currentDate;
-        } else {
-            // The date in traceId is not today, set endTimestamp to 11:59 PM
-            endTimestamp = new Date(year, month - 1, day, 23, 59, 59, 999);
-        }
+      // Create endTimestamp
+      let endTimestamp: Date;
 
-        // Return the Unix timestamps in milliseconds
-        return { beginTimestamp: beginTimestamp.getTime(), endTimestamp: endTimestamp.getTime() };
+      if (
+        currentDate.getFullYear() === year &&
+        currentDate.getMonth() === month - 1 &&
+        currentDate.getDate() === day
+      ) {
+        // The date in traceId is today, set endTimestamp to the current time
+        endTimestamp = currentDate;
+      } else {
+        // The date in traceId is not today, set endTimestamp to 11:59 PM
+        endTimestamp = new Date(year, month - 1, day, 23, 59, 59, 999);
+      }
+
+      // Return the Unix timestamps in milliseconds
+      return {
+        beginTimestamp: beginTimestamp.getTime(),
+        endTimestamp: endTimestamp.getTime(),
+      };
     } else {
-        // Handle the case when the date pattern is not found
-        return null;
-    }
-}
-
-private setAdditionalParams() {
-  // Get the input value
-  const inputAdditionalParamsElement = this.getInputElement('inputAdditionalParams') as HTMLInputElement;
-  const inputAdditionalParams = inputAdditionalParamsElement.value;
-
-  // Split the input value into individual terms
-  const terms = inputAdditionalParams.split(' ');
-
-  // Create an array to store the formatted terms
-  const formattedTerms = [];
-
-  // Create a flag to track whether we're within double quotes
-  let withinQuotes = false;
-  let currentTerm = '';
-
-  for (const term of terms) {
-    if (term.startsWith('"')) {
-      // If the term starts with a double quote, mark it as within quotes
-      withinQuotes = true;
-      currentTerm = term;
-    } else if (term.endsWith('"')) {
-      // If the term ends with a double quote, mark it as outside quotes
-      withinQuotes = false;
-      currentTerm += ' ' + term;
-      // Add the term to the formattedTerms array without asterisks
-      formattedTerms.push(currentTerm);
-    } else if (withinQuotes) {
-      // If we're within quotes, add the term without asterisks
-      currentTerm += ' ' + term;
-    } else {
-      // If not within quotes, format the term with asterisks and add to the array
-      formattedTerms.push(`*${term}*`);
+      // Handle the case when the date pattern is not found
+      return null;
     }
   }
 
-  // Join the formatted terms with ' OR ' and set it to AdditionalParams
-  this.additionalParams = formattedTerms.join(' OR ');
-}
+  private setAdditionalParams() {
+    // Get the input value
+    const inputAdditionalParamsElement = this.getInputElement(
+      'inputAdditionalParams'
+    ) as HTMLInputElement;
+    const inputAdditionalParams = inputAdditionalParamsElement.value;
+
+    // Split the input value into individual terms
+    const terms = inputAdditionalParams.split(' ');
+
+    // Create an array to store the formatted terms
+    const formattedTerms = [];
+
+    // Create a flag to track whether we're within double quotes
+    let withinQuotes = false;
+    let currentTerm = '';
+
+    for (const term of terms) {
+      if (term.startsWith('"')) {
+        // If the term starts with a double quote, mark it as within quotes
+        withinQuotes = true;
+        currentTerm = term;
+      } else if (term.endsWith('"')) {
+        // If the term ends with a double quote, mark it as outside quotes
+        withinQuotes = false;
+        currentTerm += ' ' + term;
+        // Add the term to the formattedTerms array without asterisks
+        formattedTerms.push(currentTerm);
+      } else if (withinQuotes) {
+        // If we're within quotes, add the term without asterisks
+        currentTerm += ' ' + term;
+      } else {
+        // If not within quotes, format the term with asterisks and add to the array
+        formattedTerms.push(`*${term}*`);
+      }
+    }
+
+    // Join the formatted terms with ' OR ' and set it to AdditionalParams
+    this.additionalParams = formattedTerms.join(' OR ');
+  }
 }
