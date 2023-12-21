@@ -24,8 +24,6 @@
       <div [ngClass]="{'readme': true, 'col-md-6': !readmeHidden}">
         <!-- README Element -->
         <div class="readme" [ngClass]="{ hidden: readmeHidden }">
-          <!-- README Content Goes Here -->
-          <h2>README</h2>
   <p>
     <Strong>Instructions:</Strong>
     <ol>
@@ -65,7 +63,17 @@
         Use additional parameters to find logs that you identify are related. Once you find a related log, filter for just the
         <code>@TRACE_ID:</code> of that log to see it in its full context.
       </li>
+      <li>
+        If you search for something older than 15 days, you will automatically be redirected to the rehydration page to rehydrate your search. If you are rehydrating, 
+        it is best to not include any additional parameters in your rehydration as it will restrict the logs that are rehydrated. Rehydrate for everything and then begin filtering
+        with additional parameters in datadog for what you're looking for. 
+      </li>
     </ol>
+    <p>
+      <Strong>Notes:</Strong>
+      <ol>
+        <li><code>This currently only works for US agencies.</code></li>
+      </ol>
         </div>
       </div>
         <div class="col-md-6 container-border">
