@@ -9,10 +9,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
     <style>
       /* Custom CSS for the container with border, shadow, rounded corners, transparent blue border, and spacing between rows */
-      
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   </head>
   <body>
     <div class="container">
@@ -20,6 +21,53 @@
         class="row justify-content-center align-items-center"
         style="height: 100vh"
       >
+      <div [ngClass]="{'readme': true, 'col-md-6': !readmeHidden}">
+        <!-- README Element -->
+        <div class="readme" [ngClass]="{ hidden: readmeHidden }">
+          <!-- README Content Goes Here -->
+          <h2>README</h2>
+  <p>
+    <Strong>Instructions:</Strong>
+    <ol>
+      <li>You must already be signed into DataDog in your browser for this to work.</li>
+      <li>
+        <code>ServProvCode</code>, <code>Environment</code>, and
+        <code>Begin/End Timestamp</code> are required fields.
+      </li>
+      <li>
+        If you are searching for a <code>TRACE_ID</code>, all other fields are ignored. You do not need to erase them or make other selections.
+      </li>
+      <li>
+        If you are searching for logs for something that took place in ACA, it's a good idea to include
+        <code>Civic Platform (biz)</code> as a selection as most errors ACA displays come from the biz server.
+      </li>
+      <li>
+        When searching for additional parameters, if your parameter has a space in it, surround it with quotes <code>""</code>.
+      </li>
+      <li>
+        When searching for multiple additional parameters, put a space between each one.
+      </li>
+    </ol>
+  <p>
+    <Strong>Tips:</Strong>
+    <ol>
+      <li>
+        If searching for something in relation to a specific record, always search for the Full CapID, not the Alt-Id (Custom Id).
+      </li>
+      <li>
+        If searching for something in relation to a specific user, search by the username or additional parameter
+        <code>@USER_ID:&lt;username-here&gt;</code> if for backoffice. For an ACA user, search their email or PUBLICUSER ID.
+      </li>
+      <li>
+        Never assume that searching for a specific parameter will bring up related logging. Sometimes logs don't contain the value you're searching for but are still related.
+      </li>
+      <li>
+        Use additional parameters to find logs that you identify are related. Once you find a related log, filter for just the
+        <code>@TRACE_ID:</code> of that log to see it in its full context.
+      </li>
+    </ol>
+        </div>
+      </div>
         <div class="col-md-6 container-border">
           <form>
             <!-- Row 1 - Title and Logo -->
@@ -67,55 +115,52 @@
               </div>
             </div>
 
-            
-            
             <div class="form-row">
               <div class="col-md-0.5"></div>
-               <!-- Add a "Timeframe" dropdown with ngModel -->
-            <div class="col-md-3 mb-3">
-              <label for="selectedTimeframe">Timeframe</label>
-               <select 
-            class="form-control"
-            [(ngModel)]="selectedTimeframe"
-            (change)="onTimeframeChange()"
-            name="selectedTimeframe"
-          >
-            <option value="TODAY">TODAY</option>
-            <option value="Past 15 Minutes">Past 15 Mins</option>
-            <option value="Past 1 Hour">Past 1 Hour</option>
-            <option value="Past 4 Hours">Past 4 Hours</option>
-            <option value="Past 1 Day">Past 1 Day</option>
-            <option value="Past 2 Days">Past 2 Days</option>
-            <option value="Past 3 Days">Past 3 Days</option>
-            <option value="Past 7 Days">Past 7 Days</option>
-            <option value="Past 15 Days">Past 15 Days</option>
-          </select>
-        </div>
-            <!-- Begin Timestamp Date and Time Selector -->
-            <div class="col-md-4 mb-3">
-              <label for="inputBeginTimestamp">Begin Timestamp</label>
-              <input
-                type="datetime-local"
-                class="form-control"
-                id="inputBeginTimestamp"
-                [(ngModel)]="activeBeginCalendarValue"
-                name="activeBeginCalendarValue"
-              />
-            </div>
+              <!-- Add a "Timeframe" dropdown with ngModel -->
+              <div class="col-md-3 mb-3">
+                <label for="selectedTimeframe">Timeframe</label>
+                <select
+                  class="form-control"
+                  [(ngModel)]="selectedTimeframe"
+                  (change)="onTimeframeChange()"
+                  name="selectedTimeframe"
+                >
+                  <option value="TODAY">TODAY</option>
+                  <option value="Past 15 Minutes">Past 15 Mins</option>
+                  <option value="Past 1 Hour">Past 1 Hour</option>
+                  <option value="Past 4 Hours">Past 4 Hours</option>
+                  <option value="Past 1 Day">Past 1 Day</option>
+                  <option value="Past 2 Days">Past 2 Days</option>
+                  <option value="Past 3 Days">Past 3 Days</option>
+                  <option value="Past 7 Days">Past 7 Days</option>
+                  <option value="Past 15 Days">Past 15 Days</option>
+                </select>
+              </div>
+              <!-- Begin Timestamp Date and Time Selector -->
+              <div class="col-md-4 mb-3">
+                <label for="inputBeginTimestamp">Begin Timestamp</label>
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  id="inputBeginTimestamp"
+                  [(ngModel)]="activeBeginCalendarValue"
+                  name="activeBeginCalendarValue"
+                />
+              </div>
 
-            <!-- End Timestamp Date and Time Selector -->
-            <div class="col-md-4 mb-3">
-              <label for="inputEndTimestamp">End Timestamp</label>
-              <input
-                type="datetime-local"
-                class="form-control"
-                id="inputEndTimestamp"
-                [(ngModel)]="activeEndCalendarValue"
-                name="activeEndCalendarValue"
-              />
+              <!-- End Timestamp Date and Time Selector -->
+              <div class="col-md-4 mb-3">
+                <label for="inputEndTimestamp">End Timestamp</label>
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  id="inputEndTimestamp"
+                  [(ngModel)]="activeEndCalendarValue"
+                  name="activeEndCalendarValue"
+                />
+              </div>
             </div>
-            
-          </div>
             <!-- Add more rows here -->
             <div class="form-row">
               <div class="col-md-4">
@@ -172,15 +217,23 @@
                 />
               </div>
             </div>
-            <!-- Submit Button -->
 
-            <button
-              type="submit"
-              class="btn btn-primary custom-btn-primary"
-              (click)="onSubmit($event)"
-            >
-              Fetch
-            </button>
+            <div class="form-row">
+              <!-- Submit Button -->
+
+              <button
+                type="submit"
+                class="btn btn-primary custom-btn-primary col-md-4 mb-3"
+                (click)="onSubmit($event)"
+              >
+                Fetch
+              </button>
+
+              <div class="col-md-6"></div> 
+
+              <!-- Button to Toggle README Visibility -->
+              <i class="fas fa-question-circle col-md-2" style="font-size: 24px; color: rgba(136, 37, 218, 1); cursor: pointer;" (click)="toggleReadme()"></i>
+            </div>
           </form>
         </div>
       </div>

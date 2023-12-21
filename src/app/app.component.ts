@@ -16,6 +16,7 @@ export class AppComponent {
   applicationsUsed: string[] = [];
   traceId: string = '';
   additionalParams: string = '';
+  readmeHidden: boolean = true; // Initially, README is hidden
 
   ngOnInit() {
     const { beginTimestamp, endTimestamp } = this.generateTimestamps();
@@ -23,6 +24,12 @@ export class AppComponent {
     // Prepopulate the form elements with the generated timestamps
     this.activeBeginCalendarValue = beginTimestamp.toISOString().slice(0, 16);
     this.activeEndCalendarValue = endTimestamp.toISOString().slice(0, 16);
+    this.readmeHidden = true;
+  }
+
+  toggleReadme() {
+    this.readmeHidden = !this.readmeHidden;
+    console.log("clicked");
   }
 
   onSubmit(event: Event) {

@@ -36,3 +36,12 @@
   label {
     font-weight: bold;
   }
+
+  .readme {
+    display: none;
+  }
+  
+  /* Show the README if it's not hidden */
+  .readme:not(.hidden) {
+    display: block;
+  }
