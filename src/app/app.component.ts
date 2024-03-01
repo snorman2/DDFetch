@@ -476,45 +476,57 @@ export class AppComponent {
   }
 
   private setTimestampsFromTraceId(traceId: string) {
-    // Use a regular expression to find the date pattern within the string
-    const dateMatch = traceId.match(/(\d{2})(\d{2})(\d{2})/);
-
-    if (dateMatch) {
-      const year = parseInt(dateMatch[1], 10) + 2000;
-      const month = parseInt(dateMatch[2], 10);
-      const day = parseInt(dateMatch[3], 10);
-
-      // Create beginTimestamp for 12:00 AM on the specified date (local time zone)
-      const beginTimestamp = new Date(year, month - 1, day, 0, 0, 0, 0);
-
-      // Get the current date in local time zone
-      const currentDate = new Date();
-
-      // Create endTimestamp
-      let endTimestamp: Date;
-
-      if (
-        currentDate.getFullYear() === year &&
-        currentDate.getMonth() === month - 1 &&
-        currentDate.getDate() === day
-      ) {
-        // The date in traceId is today, set endTimestamp to the current time
-        endTimestamp = currentDate;
-      } else {
-        // The date in traceId is not today, set endTimestamp to 11:59 PM
-        endTimestamp = new Date(year, month - 1, day, 23, 59, 59, 999);
-      }
-
-      // Return the Unix timestamps in milliseconds
-      return {
-        beginTimestamp: beginTimestamp.getTime(),
-        endTimestamp: endTimestamp.getTime(),
-      };
-    } else {
-      // Handle the case when the date pattern is not found
-      return null;
+    // Determine the year length based on the starting characters
+    const match = traceId.match(/aca-[^-]*-([^]*)/);
+  
+    if (match && match[1]) {
+      const extractedValues = match[1];
+      traceId = extractedValues;
     }
+  
+    const yearLength = traceId.startsWith('20') ? 4 : 2;
+    // Extract year, month, and day based on the determined year length
+    let year = parseInt(traceId.substring(0, yearLength), 10);
+    const month = parseInt(traceId.substring(yearLength, yearLength + 2), 10);
+    const day = parseInt(traceId.substring(yearLength + 2, yearLength + 4), 10);
+  
+    // If yearLength is 2, add 2000 to the year
+    if (yearLength === 2) {
+      year += 2000;
+    }
+  
+    // Create beginTimestamp for 12:00 AM on the specified date (local time zone)
+    const beginTimestamp = new Date(year, month - 1, day, 0, 0, 0, 0);
+  
+    // Get the current date in local time zone
+    const currentDate = new Date();
+  
+    // Create endTimestamp
+    let endTimestamp: Date;
+  
+    if (
+      currentDate.getFullYear() === year &&
+      currentDate.getMonth() === month - 1 &&
+      currentDate.getDate() === day
+    ) {
+      // The date in traceId is today, set endTimestamp to the current time
+      endTimestamp = currentDate;
+    } else {
+      // The date in traceId is not today, set endTimestamp to 11:59 PM
+      endTimestamp = new Date(year, month - 1, day, 23, 59, 59, 999);
+    }
+  
+    // Return the Unix timestamps in milliseconds
+    return {
+      beginTimestamp: beginTimestamp.getTime(),
+      endTimestamp: endTimestamp.getTime(),
+    };
   }
+  
+  
+  
+  
+  
 
   private setAdditionalParams() {
     // Get the input value
