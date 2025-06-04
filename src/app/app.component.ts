@@ -64,7 +64,7 @@ export class AppComponent {
         console.log('Begin Timestamp:', this.beginTimestamp);
         console.log('End Timestamp:', this.endTimestamp);
 
-        const datadogQuery = `*${this.traceId}* OR @TRACE_ID:${this.traceId}`;
+        const datadogQuery = this.buildTraceIdDatadogQuery(this.traceId);
 
         if (this.isTimestampMoreThanFifteenDaysAgo(beginTimestamp)) {
           console.log(
@@ -317,99 +317,75 @@ export class AppComponent {
     environment: string,
     applicationsUsed: string[]
   ) {
-    // Format the Datadog query
-    let query = `(*${servProvCode.toUpperCase()}*`;
+    const upperServProvCode = servProvCode.toUpperCase();
+    const lowerServProvCode = servProvCode.toLowerCase();
+    const upperEnv = environment.toUpperCase();
+    const lowerEnv = environment.toLowerCase();
 
+    let mainParts: string[] = [];
     if (applicationsUsed.includes('Civic Platform')) {
-      query += ` OR @SERV_PROV_CODE:*${servProvCode.toUpperCase()}* OR @JNDI:*${servProvCode.toLowerCase()}-${environment.toLowerCase()}* OR @JNDI:*${servProvCode.toUpperCase()}-${environment.toUpperCase()}*`;
+      mainParts.push(`@SERV_PROV_CODE:*${upperServProvCode}*`);
+      mainParts.push(`@JNDI:*${lowerServProvCode}-${lowerEnv}*`);
+      mainParts.push(`@JNDI:*${upperServProvCode}-${upperEnv}*`);
     }
-
     if (applicationsUsed.includes('Citizen Access')) {
-      query += ` OR filename:*${servProvCode.toLowerCase()}-${environment.toLowerCase()}*`;
+      mainParts.push(`(*${upperServProvCode}* AND service:*aca*) OR filename:*${lowerServProvCode}-${lowerEnv}*`);
     }
 
-    query += ') AND (';
+    // Host filter for environment
+    let hostFilter = '';
+    switch (upperEnv) {
+      case 'PROD':
+        hostFilter = 'host:*mtprd*';
+        break;
+      case 'TEST':
+      case 'SUPP':
+      case 'NONPROD1':
+      case 'NONPROD2':
+      case 'NONPROD3':
+      case 'NONPROD4':
+        hostFilter = 'host:*mtsup*';
+        break;
+      case 'STG':
+        hostFilter = 'host:*stg*';
+        break;
+      case 'CVCN':
+        hostFilter = 'host:*cvcn*';
+        break;
+    }
 
+    let mainQuery = '';
+    if (mainParts.length === 1) {
+      // Only one main part (e.g., only ACA)
+      mainQuery = `(${mainParts[0]}) AND (${hostFilter})`;
+    } else if (mainParts.length > 1) {
+      // Multiple main parts, join with OR and wrap in parentheses
+      mainQuery = `((${mainParts.join(' OR ')}) AND (${hostFilter}))`;
+    }
+
+    // CAPI query
+    let capiQuery = '';
     if (applicationsUsed.includes('CAPI')) {
-      // Add environment-specific conditions
-      switch (environment) {
-        case 'PROD':
-          query += 'host:*mtprd*';
-          break;
-        case 'TEST':
-        case 'SUPP':
-        case 'NONPROD1':
-        case 'NONPROD2':
-        case 'NONPROD3':
-        case 'NONPROD4':
-          query += 'host:*mtsup*';
-          break;
-        case 'STG':
-          query += 'host:*stg*';
-          break;
-        case 'CVCN':
-          query += 'host:*cvcn*';
-          break;
-      }
-      if (
-        applicationsUsed.includes('Citizen Access') &&
-        !applicationsUsed.includes('Civic Platform')
-      ) {
-        query += ' AND service:aca';
-      }
-      if (
-        applicationsUsed.includes('Civic Platform') &&
-        !applicationsUsed.includes('Citizen Access')
-      ) {
-        query += ' AND -service:aca';
-      }
-      query += ` OR (service:capi AND @Properties.log.EnvName:${this.environment.toUpperCase()} AND @Properties.log.Agency:${this.servProvCode.toUpperCase()}))`;
-    } else {
-      // Add environment-specific conditions
-      switch (environment) {
-        case 'PROD':
-          query += 'host:*mtprd*';
-          break;
-        case 'TEST':
-        case 'SUPP':
-        case 'NONPROD1':
-        case 'NONPROD2':
-        case 'NONPROD3':
-        case 'NONPROD4':
-          query += 'host:*mtsup*';
-          break;
-        case 'STG':
-          query += 'host:*stg*';
-          break;
-        case 'CVCN':
-          query += 'host:*cvcn*';
-          break;
-      }
-      if (
-        applicationsUsed.includes('Citizen Access') &&
-        !applicationsUsed.includes('Civic Platform')
-      ) {
-        query += ' AND service:aca';
-      }
-      if (
-        applicationsUsed.includes('Civic Platform') &&
-        !applicationsUsed.includes('Citizen Access')
-      ) {
-        query += ' AND -service:aca';
-      }
-      query += ')';
-
-      if (
-        applicationsUsed.includes('CAPI') &&
-        !applicationsUsed.includes('Civic Platform') &&
-        !applicationsUsed.includes('Civic Platform')
-      ) {
-        query = `service:capi AND @Properties.log.EnvName:${this.environment.toUpperCase()} AND @Properties.log.Agency:${this.servProvCode.toUpperCase()}`;
-      }
+      capiQuery = `(service:capi AND @Properties.log.EnvName:${upperEnv} AND @Properties.log.Agency:${upperServProvCode})`;
     }
+
+    // Combine queries
+    let query = '';
+    if (mainQuery && capiQuery) {
+      query = `${mainQuery} OR ${capiQuery}`;
+    } else if (mainQuery) {
+      query = mainQuery;
+    } else if (capiQuery) {
+      query = capiQuery;
+    } else {
+      query = '*';
+    }
+
+    // Add additional params if present
     if (this.additionalParams.trim() !== '') {
       query += ` (${this.additionalParams})`;
     }
+
     return query;
   }
 
@@ -476,52 +452,67 @@ export class AppComponent {
   }
 
   private setTimestampsFromTraceId(traceId: string) {
-    // Determine the year length based on the starting characters
-    const match = traceId.match(/aca-[^-]*-([^]*)/);
-  
-    if (match && match[1]) {
-      const extractedValues = match[1];
-      traceId = extractedValues;
-    }
-  
-    const yearLength = traceId.startsWith('20') ? 4 : 2;
-    // Extract year, month, and day based on the determined year length
-    let year = parseInt(traceId.substring(0, yearLength), 10);
-    const month = parseInt(traceId.substring(yearLength, yearLength + 2), 10);
-    const day = parseInt(traceId.substring(yearLength + 2, yearLength + 4), 10);
-  
-    // If yearLength is 2, add 2000 to the year
-    if (yearLength === 2) {
-      year += 2000;
-    }
-  
-    // Create beginTimestamp for 12:00 AM on the specified date (local time zone)
-    const beginTimestamp = new Date(year, month - 1, day, 0, 0, 0, 0);
-  
-    // Get the current date in local time zone
-    const currentDate = new Date();
-  
-    // Create endTimestamp
-    let endTimestamp: Date;
-  
-    if (
-      currentDate.getFullYear() === year &&
-      currentDate.getMonth() === month - 1 &&
-      currentDate.getDate() === day
-    ) {
-      // The date in traceId is today, set endTimestamp to the current time
-      endTimestamp = currentDate;
-    } else {
-      // The date in traceId is not today, set endTimestamp to 11:59 PM
-      endTimestamp = new Date(year, month - 1, day, 23, 59, 59, 999);
-    }
-  
-    // Return the Unix timestamps in milliseconds
-    return {
-      beginTimestamp: beginTimestamp.getTime(),
-      endTimestamp: endTimestamp.getTime(),
-    };
+  // Remove known prefixes (e.g., "aca-", "W-", etc.)
+  // Find the first occurrence of a date pattern: either YYYYMMDD or YYMMDD
+  // Accepts: 
+  //   aca-250604134315118-181f5a23-965fbe1b
+  //   250604134315118-181f5a23-965fbe1b
+  //   W-20250604124240646-4f3b5f17
+  //   20250604124240646-4f3b5f17
+
+  // Regex to find either 8 digits (YYYYMMDD) or 6 digits (YYMMDD) at the start or after a dash
+  const match = traceId.match(/(?:^|[-_])((?:20\d{6})|(?:\d{6}))/);
+
+  if (!match || !match[1]) {
+    // Could not find a valid date pattern
+    return null;
   }
+
+  const dateStr = match[1];
+  let year: number, month: number, day: number;
+
+  if (dateStr.length === 8) {
+    // Format: YYYYMMDD
+    year = parseInt(dateStr.substring(0, 4), 10);
+    month = parseInt(dateStr.substring(4, 6), 10);
+    day = parseInt(dateStr.substring(6, 8), 10);
+  } else if (dateStr.length === 6) {
+    // Format: YYMMDD, assume 2000+
+    year = 2000 + parseInt(dateStr.substring(0, 2), 10);
+    month = parseInt(dateStr.substring(2, 4), 10);
+    day = parseInt(dateStr.substring(4, 6), 10);
+  } else {
+    // Invalid format
+    return null;
+  }
+
+  // Create beginTimestamp for 12:00 AM on the specified date (local time zone)
+  const beginTimestamp = new Date(year, month - 1, day, 0, 0, 0, 0);
+
+  // Get the current date in local time zone
+  const currentDate = new Date();
+
+  // Create endTimestamp
+  let endTimestamp: Date;
+
+  if (
+    currentDate.getFullYear() === year &&
+    currentDate.getMonth() === month - 1 &&
+    currentDate.getDate() === day
+  ) {
+    // The date in traceId is today, set endTimestamp to the current time
+    endTimestamp = currentDate;
+  } else {
+    // The date in traceId is not today, set endTimestamp to 11:59 PM
+    endTimestamp = new Date(year, month - 1, day, 23, 59, 59, 999);
+  }
+
+  // Return the Unix timestamps in milliseconds
+  return {
+    beginTimestamp: beginTimestamp.getTime(),
+    endTimestamp: endTimestamp.getTime(),
+  };
+}
   
   
   
@@ -567,5 +558,21 @@ export class AppComponent {
 
     // Join the formatted terms with ' OR ' and set it to AdditionalParams
     this.additionalParams = formattedTerms.join(' OR ');
+  }
+
+  private buildTraceIdDatadogQuery(traceId: string): string {
+    // Always include the basic search
+    let query = `*${traceId}* OR @TRACE_ID:*${traceId}*`;
+
+    // Check if the traceId has a prefix (e.g., "aca-", "W-", etc.)
+    // Prefix is defined as any non-digit characters followed by a dash at the start
+    const hasPrefix = /^[^\d]+-/.test(traceId);
+
+    // If no prefix, also add @Properties.log.TraceId
+    if (!hasPrefix) {
+      query += ` OR @Properties.log.TraceId:${traceId}`;
+    }
+
+    return query;
   }
 }
