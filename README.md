@@ -17,17 +17,6 @@ DDFetch is an Angular application designed to simplify and accelerate the proces
 2. Open `http://localhost:4200/` in your browser.
 3. Fill in the form fields to generate Datadog queries and open them directly in Datadog.
 
-## Development
-
-- Built with [Angular CLI](https://github.com/angular/angular-cli).
-- See below for standard Angular commands for building, testing, and scaffolding.
-
-## Standard Angular CLI Usage
-
-- `ng build` - Build the project.
-- `ng test` - Run unit tests.
-- `ng e2e` - Run end-to-end tests.
-- `ng generate component component-name` - Generate a new component.
 
 ## Further Help
 
