@@ -323,12 +323,17 @@ export class AppComponent {
     const lowerEnv = environment.toLowerCase();
 
     let mainParts: string[] = [];
-    if (applicationsUsed.includes('Civic Platform')) {
+    
+    // If only ACA is selected, also include Civic Platform since ACA is frontend and Civic Platform is backend
+    const includesCivicPlatform = applicationsUsed.includes('Civic Platform') || applicationsUsed.includes('Citizen Access');
+    const includesCitizenAccess = applicationsUsed.includes('Citizen Access');
+    
+    if (includesCivicPlatform) {
       mainParts.push(`@SERV_PROV_CODE:*${upperServProvCode}*`);
       mainParts.push(`@JNDI:*${lowerServProvCode}-${lowerEnv}*`);
       mainParts.push(`@JNDI:*${upperServProvCode}-${upperEnv}*`);
     }
-    if (applicationsUsed.includes('Citizen Access')) {
+    if (includesCitizenAccess) {
       mainParts.push(`(*${upperServProvCode}* AND service:*aca*) OR filename:*${lowerServProvCode}-${lowerEnv}*`);
     }
 
