@@ -377,7 +377,7 @@ export class AppComponent {
     // Combine queries
     let query = '';
     if (mainQuery && capiQuery) {
-      query = `${mainQuery} OR ${capiQuery}`;
+      query = `(${mainQuery} OR ${capiQuery})`;
     } else if (mainQuery) {
       query = mainQuery;
     } else if (capiQuery) {
