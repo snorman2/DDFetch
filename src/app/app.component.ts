@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   servProvCode: string = '';
+  host: string = '';
   environment: string = '';
   selectedTimeframe: string = 'TODAY';
   beginTimestamp: Number = 0;
@@ -14,9 +15,11 @@ export class AppComponent {
   activeBeginCalendarValue: string = '';
   activeEndCalendarValue: string = '';
   applicationsUsed: string[] = [];
+  additionalServices: string[] = []; // Add this line
   traceId: string = '';
   additionalParams: string = '';
   readmeHidden: boolean = true; // Initially, README is hidden
+  availableEnvironments: string[] = [];
 
   ngOnInit() {
     const { beginTimestamp, endTimestamp } = this.generateTimestamps();
@@ -117,6 +120,11 @@ export class AppComponent {
         this.applicationsUsed
       );
 
+      // Check if the query generation failed due to validation error
+      if (datadogQuery === '') {
+        return; // Stop execution if validation failed
+      }
+
       console.log('Datadog Query:', datadogQuery);
       let redirectURL = '';
       if (this.isTimestampMoreThanFifteenDaysAgo(beginUnixTimestamp)) {
@@ -175,10 +183,42 @@ export class AppComponent {
     return localDate;
   }
 
+  onHostChange() {
+    const hostElement = this.getInputElement('inputHost') as HTMLSelectElement;
+    this.host = hostElement.value;
+    
+    // Reset environment when host changes
+    const environmentElement = this.getInputElement('inputEnvironment') as HTMLSelectElement;
+    environmentElement.value = '--SELECT--';
+    this.environment = '';
+
+    // Update available environments based on host selection
+    switch (this.host) {
+      case 'US':
+        this.availableEnvironments = ['PROD', 'SUPP', 'TEST', 'STG', 'NONPROD1', 'NONPROD2', 'NONPROD3', 'NONPROD4', 'CVCN'];
+        break;
+      case 'AU':
+        this.availableEnvironments = ['PROD', 'SUPP', 'TEST', 'STG', 'NONPROD1', 'NONPROD2', 'NONPROD3', 'NONPROD4', 'CONV'];
+        break;
+      case 'CA':
+        this.availableEnvironments = ['PROD', 'STG', 'NONPROD1', 'NONPROD2', 'NONPROD3', 'NONPROD4'];
+        break;
+      case 'OREGON':
+        this.availableEnvironments = ['PROD', 'TRAIN', 'DEV', 'CONFIG', 'STG'];
+        break;
+      default:
+        this.availableEnvironments = [];
+        break;
+    }
+  }
+
   private validateForm(): boolean {
     const servProvCodeElement = this.getInputElement(
       'inputServProvCode'
     ) as HTMLInputElement;
+    const hostElement = this.getInputElement(
+      'inputHost'
+    ) as HTMLSelectElement;
     const environmentElement = this.getInputElement(
       'inputEnvironment'
     ) as HTMLSelectElement;
@@ -193,6 +233,11 @@ export class AppComponent {
 
     if (servProvCodeElement.value.trim() === '')
       missingFields.push('ServProvCode');
+    if (
+      hostElement.value.trim() === '' ||
+      hostElement.value.trim() === '--SELECT--'
+    )
+      missingFields.push('Host');
     if (
       environmentElement.value.trim() === '' ||
       environmentElement.value.trim() === '--SELECT--'
@@ -256,18 +301,24 @@ export class AppComponent {
     this.servProvCode = (
       this.getInputElement('inputServProvCode') as HTMLInputElement
     )?.value;
+    this.host = (
+      this.getInputElement('inputHost') as HTMLSelectElement
+    )?.value;
     this.environment = (
-      this.getInputElement('inputEnvironment') as HTMLInputElement
+      this.getInputElement('inputEnvironment') as HTMLSelectElement
     )?.value;
     this.beginTimestamp = beginTimestamp;
     this.endTimestamp = endTimestamp;
     this.applicationsUsed = this.getCheckedApplications();
+    this.additionalServices = this.getCheckedAdditionalServices(); // Add this line
 
     console.log('ServProvCode:', this.servProvCode);
+    console.log('Host:', this.host);
     console.log('Environment:', this.environment);
     console.log('Begin Timestamp:', this.beginTimestamp);
     console.log('End Timestamp:', this.endTimestamp);
     console.log('Applications Used:', this.applicationsUsed);
+    console.log('Additional Services:', this.additionalServices); // Add this line
   }
 
   private convertTimestamps(): [number, number] {
@@ -297,6 +348,16 @@ export class AppComponent {
       .map((checkbox) => checkbox.value);
   }
 
+  // Add this method to get checked additional services
+  private getCheckedAdditionalServices(): string[] {
+    const checkboxes = document.getElementsByName(
+      'additionalServices[]'
+    ) as NodeListOf<HTMLInputElement>;
+    return Array.from(checkboxes)
+      .filter((checkbox) => checkbox.checked)
+      .map((checkbox) => checkbox.value);
+  }
+
   private convertToUnixTimestamps(
     beginTimestamp: string,
     endTimestamp: string
@@ -319,8 +380,87 @@ export class AppComponent {
   ) {
     const upperServProvCode = servProvCode.toUpperCase();
     const lowerServProvCode = servProvCode.toLowerCase();
-    const upperEnv = environment.toUpperCase();
-    const lowerEnv = environment.toLowerCase();
+    const originalUpperEnv = environment.toUpperCase(); // Keep original for host filter
+    let upperEnv = environment.toUpperCase();
+    
+    // Dynamic environment mapping based on host
+    let lowerEnv = environment.toLowerCase();
+    if (this.host === 'AU') {
+      switch (originalUpperEnv) {
+        case 'PROD':
+          lowerEnv = 'auprod';
+          upperEnv = 'AUPROD';
+          break;
+        case 'SUPP':
+          lowerEnv = 'ausupp';
+          upperEnv = 'AUSUPP';
+          break;
+        case 'TEST':
+          lowerEnv = 'autest';
+          upperEnv = 'AUTEST';
+          break;
+        case 'CONV':
+          lowerEnv = 'auconv';
+          upperEnv = 'AUCONV';
+          break;
+        case 'STG':
+          lowerEnv = 'austg';
+          upperEnv = 'AUSTG';
+          break;
+        case 'NONPROD1':
+          lowerEnv = 'nonprod1';
+          upperEnv = 'NONPROD1';
+          break;
+        case 'NONPROD2':
+          lowerEnv = 'nonprod2';
+          upperEnv = 'NONPROD2';
+          break;
+        case 'NONPROD3':
+          lowerEnv = 'nonprod3';
+          upperEnv = 'NONPROD3';
+          break;
+        case 'NONPROD4':
+          lowerEnv = 'nonprod4';
+          upperEnv = 'NONPROD4';
+          break;
+        default:
+          lowerEnv = environment.toLowerCase();
+          upperEnv = environment.toUpperCase();
+          break;
+      }
+    } else if (this.host === 'CA') {
+      switch (originalUpperEnv) {
+        case 'PROD':
+          lowerEnv = 'prodca';
+          upperEnv = 'PRODCA';
+          break;
+        case 'STG':
+          lowerEnv = 'stgca';
+          upperEnv = 'STGCA';
+          break;
+        case 'NONPROD1':
+          lowerEnv = 'nonprod1';
+          upperEnv = 'NONPROD1';
+          break;
+        case 'NONPROD2':
+          lowerEnv = 'nonprod2';
+          upperEnv = 'NONPROD2';
+          break;
+        case 'NONPROD3':
+          lowerEnv = 'nonprod3';
+          upperEnv = 'NONPROD3';
+          break;
+        case 'NONPROD4':
+          lowerEnv = 'nonprod4';
+          upperEnv = 'NONPROD4';
+          break;
+        default:
+          lowerEnv = environment.toLowerCase();
+          upperEnv = environment.toUpperCase();
+          break;
+      }
+    }
+    // For US and OREGON, keep the original lowercase mapping
 
     let mainParts: string[] = [];
     
@@ -330,33 +470,115 @@ export class AppComponent {
     
     if (includesCivicPlatform) {
       mainParts.push(`@SERV_PROV_CODE:*${upperServProvCode}*`);
-      mainParts.push(`@JNDI:*${lowerServProvCode}-${lowerEnv}*`);
-      mainParts.push(`@JNDI:*${upperServProvCode}-${upperEnv}*`);
+      
+      // Skip JNDI parameters for OREGON
+      if (this.host !== 'OREGON') {
+        mainParts.push(`@JNDI:*${lowerServProvCode}-${lowerEnv}*`);
+        mainParts.push(`@JNDI:*${upperServProvCode}-${upperEnv}*`);
+      }
     }
     if (includesCitizenAccess) {
-      mainParts.push(`(*${upperServProvCode}* AND service:*aca*) OR filename:*${lowerServProvCode}-${lowerEnv}*`);
+      if (this.host === 'OREGON') {
+        switch (originalUpperEnv) {
+          case 'PROD':
+            mainParts.push(`(*${upperServProvCode}* AND service:*aca*) OR filename:*${lowerServProvCode}-orprd-aca*`);
+            break;
+          case 'TRAIN':
+            mainParts.push(`(*${upperServProvCode}* AND service:*aca*) OR filename:*oregon-oregon-train-aca*`);
+            break;
+          case 'CONFIG':
+            // Omit ACA query for CONFIG - logs don't show up for now
+            break;
+          case 'DEV':
+            // Omit ACA query for DEV - logs don't show up for now
+            break;
+          case 'STG':
+            mainParts.push(`(*${upperServProvCode}* AND service:*aca*) OR filename:*${lowerServProvCode}-${lowerEnv}*`);
+            break;
+          default:
+            mainParts.push(`(*${upperServProvCode}* AND service:*aca*) OR filename:*${lowerServProvCode}-${lowerEnv}*`);
+            break;
+        }
+      } else {
+        mainParts.push(`(*${upperServProvCode}* AND service:*aca*) OR filename:*${lowerServProvCode}-${lowerEnv}*`);
+      }
     }
 
-    // Host filter for environment
+    // Host filter for environment - use originalUpperEnv here
     let hostFilter = '';
-    switch (upperEnv) {
-      case 'PROD':
-        hostFilter = 'host:*mtprd*';
-        break;
-      case 'TEST':
-      case 'SUPP':
-      case 'NONPROD1':
-      case 'NONPROD2':
-      case 'NONPROD3':
-      case 'NONPROD4':
-        hostFilter = 'host:*mtsup*';
-        break;
-      case 'STG':
-        hostFilter = 'host:*stg*';
-        break;
-      case 'CVCN':
-        hostFilter = 'host:*cvcn*';
-        break;
+    if (this.host === 'US') {
+      switch (originalUpperEnv) {
+        case 'PROD':
+          hostFilter = 'host:*mtprd*';
+          break;
+        case 'TEST':
+        case 'SUPP':
+        case 'NONPROD1':
+        case 'NONPROD2':
+        case 'NONPROD3':
+        case 'NONPROD4':
+          hostFilter = 'host:*mtsup*';
+          break;
+        case 'STG':
+          hostFilter = 'host:*stg*';
+          break;
+        case 'CVCN':
+          hostFilter = 'host:*cvcn*';
+          break;
+      }
+    } else if (this.host === 'AU') {
+      switch (originalUpperEnv) {
+        case 'PROD':
+          hostFilter = 'host:*auprd*';
+          break;
+        case 'TEST':
+        case 'SUPP':
+        case 'NONPROD1':
+        case 'NONPROD2':
+        case 'NONPROD3':
+        case 'NONPROD4':
+          hostFilter = 'host:*ausup*';
+          break;
+        case 'STG':
+          hostFilter = 'host:*austg*';
+          break;
+        case 'CONV':
+          hostFilter = 'host:*auconv*';
+          break;
+      }
+    } else if (this.host === 'CA') {
+      switch (originalUpperEnv) {
+        case 'PROD':
+          hostFilter = 'host:*caprd*';
+          break;
+        case 'NONPROD1':
+        case 'NONPROD2':
+        case 'NONPROD3':
+        case 'NONPROD4':
+          hostFilter = 'host:*casup*';
+          break;
+        case 'STG':
+          hostFilter = 'host:*castg*';
+          break;
+      }
+    } else if (this.host === 'OREGON') {
+      switch (originalUpperEnv) {
+        case 'PROD':
+          hostFilter = 'host:*orprd*';
+          break;
+        case 'TRAIN':
+          hostFilter = 'host:*ortest*';
+          break;
+        case 'DEV':
+          hostFilter = 'host:*ordev*';
+          break;
+        case 'CONFIG':
+          hostFilter = 'host:*orconf*';
+          break;
+        case 'STG':
+          hostFilter = 'host:*orstg*';
+          break;
+      }
     }
 
     let mainQuery = '';
@@ -371,17 +593,67 @@ export class AppComponent {
     // CAPI query
     let capiQuery = '';
     if (applicationsUsed.includes('CAPI')) {
-      capiQuery = `(service:capi AND @Properties.log.EnvName:${upperEnv} AND @Properties.log.Agency:${upperServProvCode})`;
+      capiQuery = `(service:capi AND @Properties.log.EnvName:${originalUpperEnv} AND @Properties.log.Agency:*${upperServProvCode}*)`;
     }
 
-    // Combine queries
+    // Additional Services query - enforce single selection per category
+    let additionalServicesQuery = '';
+    const additionalServices = this.getCheckedAdditionalServices();
+    
+    if (additionalServices.length > 0) {
+      const serviceConditions: string[] = [];
+      
+      // Check for payment services (only one allowed)
+      const paymentServices = additionalServices.filter(service => 
+        service === 'Forte' || service === 'Paypal Commerce'
+      );
+      if (paymentServices.length > 1) {
+        alert('Please select only one payment service (Forte or Paypal Commerce)');
+        return '';
+      }
+      
+      // Check for document services (only one allowed)
+      const documentServices = additionalServices.filter(service => 
+        service === 'ACDS' || service === 'ADS'
+      );
+      if (documentServices.length > 1) {
+        alert('Please select only one document service (ACDS or ADS)');
+        return '';
+      }
+      
+      // Process selected services
+      additionalServices.forEach(service => {
+        switch (service) {
+          case 'Forte':
+            serviceConditions.push('service:payment-adapter-service', 'name:event-log-service', 'service:config-store-service');
+            break;
+          case 'Paypal Commerce':
+            serviceConditions.push('service:payment-adapter-service', 'name:event-log-service', 'service:config-store-service', 'service:"Paypal UI"');
+            break;
+          case 'ACDS':
+            serviceConditions.push('service:acds', 'service:edms-handler');
+            break;
+          case 'ADS':
+            serviceConditions.push('service:av.ads');
+            break;
+        }
+      });
+      
+      // Remove duplicates and join with OR
+      const uniqueConditions = [...new Set(serviceConditions)];
+      if (uniqueConditions.length > 0) {
+        additionalServicesQuery = `(${uniqueConditions.join(' OR ')})`;
+      }
+    }
+
+    // Combine all queries
     let query = '';
-    if (mainQuery && capiQuery) {
-      query = `(${mainQuery} OR ${capiQuery})`;
-    } else if (mainQuery) {
-      query = mainQuery;
-    } else if (capiQuery) {
-      query = capiQuery;
+    const queryParts = [mainQuery, capiQuery, additionalServicesQuery].filter(part => part !== '');
+    
+    if (queryParts.length > 1) {
+      query = `(${queryParts.join(' OR ')})`;
+    } else if (queryParts.length === 1) {
+      query = queryParts[0];
     } else {
       query = '*';
     }

@@ -71,9 +71,6 @@
     </ol>
     <p>
       <Strong>Notes:</Strong>
-      <ol>
-        <li><code>This currently only works for US agencies.</code></li>
-      </ol>
         </div>
       </div>
         <div class="col-md-6 container-border">
@@ -92,10 +89,10 @@
               </div>
             </div>
 
-            <!-- Row 2 - ServProvCode and Environment -->
+            <!-- Row 2 - ServProvCode, Host, and Environment -->
             <div class="form-row">
               <!-- ServProvCode Textbox -->
-              <div class="col-md-6 mb-3">
+              <div class="col-md-4 mb-3">
                 <label for="inputServProvCode">ServProvCode</label>
                 <input
                   type="text"
@@ -105,20 +102,24 @@
                 />
               </div>
 
-              <!-- Environment Dropdownlist -->
-              <div class="col-md-6 mb-3">
+              <!-- Host Dropdown -->
+              <div class="col-md-4 mb-3">
+                <label for="inputHost">Host</label>
+                <select class="form-control" id="inputHost" (change)="onHostChange()" required>
+                  <option value="--SELECT--">--SELECT--</option>
+                  <option value="US">US</option>
+                  <option value="AU">AU</option>
+                  <option value="CA">CA</option>
+                  <option value="OREGON">OREGON</option>
+                </select>
+              </div>
+
+              <!-- Environment Dropdown -->
+              <div class="col-md-4 mb-3">
                 <label for="inputEnvironment">Environment</label>
                 <select class="form-control" id="inputEnvironment" required>
                   <option value="--SELECT--">--SELECT--</option>
-                  <option value="PROD">PROD</option>
-                  <option value="SUPP">SUPP</option>
-                  <option value="TEST">TEST</option>
-                  <option value="STG">STG</option>
-                  <option value="NONPROD1">NONPROD1</option>
-                  <option value="NONPROD2">NONPROD2</option>
-                  <option value="NONPROD3">NONPROD3</option>
-                  <option value="NONPROD4">NONPROD4</option>
-                  <option value="CVCN">CVCN</option>
+                  <option *ngFor="let env of availableEnvironments" [value]="env">{{env}}</option>
                 </select>
               </div>
             </div>
@@ -226,9 +227,60 @@
               </div>
             </div>
 
+            <!-- Row 6 - Additional Services -->
+            <div class="form-row">
+              <div class="col-md-12 mb-3">
+                <label><strong>Additional Services</strong></label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="col-md-6">
+                <label><strong>Payments:</strong></label>
+                <div>
+                  <label for="forteCheckbox" style="padding-right: 2px">Forte</label>
+                  <input
+                    type="checkbox"
+                    id="forteCheckbox"
+                    name="additionalServices[]"
+                    value="Forte"
+                  />
+                </div>
+                <div>
+                  <label for="paypalCheckbox" style="padding-right: 2px">Paypal Commerce</label>
+                  <input
+                    type="checkbox"
+                    id="paypalCheckbox"
+                    name="additionalServices[]"
+                    value="Paypal Commerce"
+                  />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label><strong>Documents:</strong></label>
+                <div>
+                  <label for="acdsCheckbox" style="padding-right: 2px">ACDS</label>
+                  <input
+                    type="checkbox"
+                    id="acdsCheckbox"
+                    name="additionalServices[]"
+                    value="ACDS"
+                  />
+                </div>
+                <div>
+                  <label for="adsCheckbox" style="padding-right: 2px">ADS</label>
+                  <input
+                    type="checkbox"
+                    id="adsCheckbox"
+                    name="additionalServices[]"
+                    value="ADS"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div class="form-row">
               <!-- Submit Button -->
-
               <button
                 type="submit"
                 class="btn btn-primary custom-btn-primary col-md-4 mb-3"
