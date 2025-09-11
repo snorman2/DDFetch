@@ -593,7 +593,7 @@ export class AppComponent {
     // CAPI query
     let capiQuery = '';
     if (applicationsUsed.includes('CAPI')) {
-      capiQuery = `(service:capi AND @Properties.log.EnvName:${originalUpperEnv} AND @Properties.log.Agency:*${upperServProvCode}*)`;
+      capiQuery = `(service:capi AND @Properties.log.EnvName:*${originalUpperEnv}* AND @Properties.log.Agency:*${upperServProvCode}*)`;
     }
 
     // Additional Services query - enforce single selection per category
