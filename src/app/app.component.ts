@@ -248,6 +248,14 @@ export class AppComponent {
     if (endTimestampElement.value.trim() === '')
       missingFields.push('End Timestamp');
 
+    // Check if at least one application or service is selected
+    const applicationsUsed = this.getCheckedApplications();
+    const additionalServices = this.getCheckedAdditionalServices();
+    
+    if (applicationsUsed.length === 0 && additionalServices.length === 0) {
+      missingFields.push('At least one Application (Civic Platform, Citizen Access, CAPI) or Additional Service');
+    }
+
     if (missingFields.length > 0) {
       alert('Please fill in the following fields: ' + missingFields.join(', '));
       return false;
